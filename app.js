@@ -54,8 +54,20 @@ app.get('/tasklists', (req, res) => {
         });
 });
 
-// Route or Endpoint for creating a TaskList
+//Endpoint to get one tasklist by taklistId : http://localhost:3000/tasklists/60de196f11039f060886ddb5
+app.get(
+    '/tasklists/:tasklistId', (req, res) => {
+        let tasklistId = req.params.tasklistId;
+        TaskList.find({ _id: tasklistId })
+            .then((taskList) => {
+                res.status(200).send(taskList)
+            })
+            .catch((error) => { console.log(error) });
+    }
+);
 
+
+// Route or Endpoint for creating a TaskList
 app.post('/tasklists', (req, res) => {
     //console.log("hello i am inside post method");
     console.log(req.body);
@@ -70,6 +82,31 @@ app.post('/tasklists', (req, res) => {
             res.status(500);
         });
 
+});
+//PUT is full update of object
+app.put('/tasklists/:tasklistId', (req, res) => {
+    TaskList.findOneAndUpdate({ _id: req.params.tasklistId }, { $set: req.body })
+        .then((taskList) => {
+            res.status(200).send(taskList)
+        })
+        .catch((error) => { console.log(error) });
+});
+// Patch is partial update of one field of an object
+app.patch('/tasklists/:tasklistId', (req, res) => {
+    TaskList.findOneAndUpdate({ _id: req.params.tasklistId }, { $set: req.body })
+        .then((taskList) => {
+            res.status(200).send(taskList)
+        })
+        .catch((error) => { console.log(error) });
+});
+
+//Delete a tasklist by id
+app.delete('/tasklists/:tasklistId', (req, res) => {
+    TaskList.findByIdAndDelete(req.params.tasklistId)
+        .then((taskList) => {
+            res.status(201).send(taskList)
+        })
+        .catch((error) => { console.log(error) });
 });
 
 /*app.listen(3000, function () {
