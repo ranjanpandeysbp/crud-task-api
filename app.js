@@ -18,7 +18,8 @@ app.use(function (req, res, next) {
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'Origin', 'X-Requested-With, Content-Type, Accept');
+    //res.setHeader('Access-Control-Allow-Headers', 'Origin', 'X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
     // Pass to next layer of middleware
     next();
 });
@@ -102,11 +103,20 @@ app.patch('/tasklists/:tasklistId', (req, res) => {
 
 //Delete a tasklist by id
 app.delete('/tasklists/:tasklistId', (req, res) => {
-    TaskList.findByIdAndDelete(req.params.tasklistId)
+
+    //Delete all tasks withing a taklist if that tasklist is deleted
+    const deleteAllContainingTask = (taskList) => {
+        Task.deleteMany({ _taskListId: req.params.tasklistId })
+            .then(() => { return taskList })
+            .catch((error) => { console.log(error) });
+    };
+
+    const responseTaskList = TaskList.findByIdAndDelete(req.params.tasklistId)
         .then((taskList) => {
-            res.status(201).send(taskList)
+            deleteAllContainingTask(taskList);
         })
         .catch((error) => { console.log(error) });
+    res.status(200).send(responseTaskList);
 });
 
 /* CRUD operation for Task, a task should always belong to a TaskList*/
